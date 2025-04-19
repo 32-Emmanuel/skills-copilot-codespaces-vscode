@@ -15,7 +15,7 @@ content="width=device-width, initial-scale=1.0>
 <li>Contact</li>
 </ul>
 </nav>
-</headee>
+</header>
 <img src="/Images/My image"
 alt="My image">
 <section id="bio">
@@ -29,6 +29,6 @@ alt="My image">
 <li>watching Movie</li>
 <ul>
 </hobbies>
-</sextion>
+</section>
 <footer id="Contact">
 <p>Email:lalaskiensa@gmail.com</p>
