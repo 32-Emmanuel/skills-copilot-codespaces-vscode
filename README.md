@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emmanuel Nsa - Profile</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fictional Product</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Transform Your Workflow</h1>
+      <p>Boost productivity with our all-in-one management tool for teams.</p>
+      <a href="#" class="cta-button">Get Started</a>
+    </div>
+  </header>
 
-<header>
-<h1>My Profile</h1>
-<nav>
-<ul>
-<li><a href="#bio">About Me</a></li>
-<li><a href="#hobbies">Hobbies</a></li>
-<li><a href="#contact">Contact</a></li>
-</ul>
-</nav>
-</header>
+  <section class="features">
+    <div class="feature">
+      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 1 icon" />
+      <h3>Collaboration</h3>
+      <p>Work together in real time, no matter where your team is.</p>
+    </div>
+    <div class="feature">
+      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 2 icon" />
+      <h3>Automation</h3>
+      <p>Automate repetitive tasks to focus on what matters most.</p>
+    </div>
+    <div class="feature">
+      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 3 icon" />
+      <h3>Analytics</h3>
+      <p>Track progress with detailed reports and performance insights.</p>
+    </div>
+  </section>
 
-<main>
-<img src="/Images/my-image.jpg" alt="Photo of Emmanuel Nsa" style="max-width: 100%; height: auto;">
-
-<section id="bio">
-<h2>About Me</h2>
-<p>Hello! I'm Emmanuel Nsa, a passionate learner and a student of 3MTT. I enjoy reading thought-provoking books and exploring the world of programming.</p>
-</section>
-
-<section id="hobbies">
-<h2>Hobbies</h2>
-<ul>
-<li>Reading</li>
-<li>Playing Music</li>
-<li>Watching Movies</li>
-</ul>
-</section>
-</main>
-
-<footer id="contact">
-<h2>Contact</h2>
-<p>Email: <a href="mailto:lalaskiensa@gmail.com">lalaskiensa@gmail.com</a></p>
-</footer>
-
+  <footer class="footer">
+    <div>
+      <p>Contact us: lalaskiensa@gmail.com | +2347032502975</p>
+      <p>&copy; 2025 Fictional Product. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>
+
+
