@@ -1,112 +1,125 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fictional Product</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <title>Calculator App</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-content">
-      <h1>Transform Your Workflow</h1>
-      <p>Boost productivity with our all-in-one management tool for teams.</p>
-      <a href="#" class="cta-button">Get Started</a>
-    </div>
-  </header>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button class="btn" onclick="clearDisplay()">C</button>
+      <button class="btn" onclick="appendValue('/')">/</button>
+      <button class="btn" onclick="appendValue('*')">*</button>
+      <button class="btn" onclick="appendValue('-')">-</button>
 
-  <section class="features">
-    <div class="feature">
-      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 1 icon" />
-      <h3>Collaboration</h3>
-      <p>Work together in real time, no matter where your team is.</p>
-    </div>
-    <div class="feature">
-      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 2 icon" />
-      <h3>Automation</h3>
-      <p>Automate repetitive tasks to focus on what matters most.</p>
-    </div>
-    <div class="feature">
-      <img src="/Picture/Photo of Emmanuel Nsa/64" alt="Feature 3 icon" />
-      <h3>Analytics</h3>
-      <p>Track progress with detailed reports and performance insights.</p>
-    </div>
-  </section>
+      <button class="btn" onclick="appendValue('7')">7</button>
+      <button class="btn" onclick="appendValue('8')">8</button>
+      <button class="btn" onclick="appendValue('9')">9</button>
+      <button class="btn" onclick="appendValue('+')">+</button>
 
-  <footer class="footer">
-    <div>
-      <p>Contact us: lalaskiensa@gmail.com | +2347032502975</p>
-      <p>&copy; 2025 Fictional Product. All rights reserved.</p>
+      <button class="btn" onclick="appendValue('4')">4</button>
+      <button class="btn" onclick="appendValue('5')">5</button>
+      <button class="btn" onclick="appendValue('6')">6</button>
+      <button class="btn equal" onclick="calculateResult()">=</button>
+
+      <button class="btn" onclick="appendValue('1')">1</button>
+      <button class="btn" onclick="appendValue('2')">2</button>
+      <button class="btn" onclick="appendValue('3')">3</button>
+
+      <button class="btn" onclick="appendValue('0')">0</button>
+      <button class="btn" onclick="appendValue('.')">.</button>
     </div>
-  </footer>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
 
-{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    line-height: 1.6;
-    color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f2f2f2;
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
-.hero {
-    background-color: #4f46e5;
-    color: #fff;
-    padding: 4rem 2rem;
-    text-align: center;
+.calculator {
+  width: 260px;
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-.hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+.display {
+  background: #000;
+  color: #0f0;
+  font-size: 2rem;
+  padding: 10px;
+  text-align: right;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  height: 50px;
+  overflow-x: auto;
 }
 
-.hero p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
-.cta-button {
-    background-color: #fff;
-    color: #4f46e5;
-    padding: 0.75rem 1.5rem;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
+.btn {
+  padding: 20px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.features {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 4rem 2rem;
-    background-color: #f9f9f9;
+.btn:hover {
+  background: #555;
 }
 
-.feature {
-    flex: 1 1 300px;
-    max-width: 300px;
-    margin: 1rem;
-    text-align: center;
+.equal {
+  grid-column: span 2;
+  background: #0a84ff;
 }
 
-.feature img {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 1rem;
+
+
+let display = document.getElementById("display");
+
+function appendValue(value) {
+  if (display.innerText === "0" && value !== '.') {
+    display.innerText = value;
+  } else {
+    display.innerText += value;
+  }
 }
 
-.footer {
-    background-color: #1f2937;
-    color: #fff;
-    text-align: center;
-    padding: 2rem 1rem;
-    font-size: 0.9rem;
+function clearDisplay() {
+  display.innerText = "0";
 }
+
+function calculateResult() {
+  try {
+    let result = eval(display.innerText);
+    display.innerText = result;
+  } catch (error) {
+    display.innerText = "Error";
+  }
+}
+
 
 
