@@ -1,98 +1,87 @@
+/src
+  ├── App.js
+  ├── ListComponent.js
+  └── index.js
+
+
 import React from 'react';
-import Counter from './Counter';
 
-function App() {
+const ListComponent = ({ items, renderItem, emptyMessage = "No items to display." }) => {
+  if (!items || items.length === 0) {
+    return <div>{emptyMessage}</div>;
+  }
+
   return (
-    <div className="App">
-      <Counter />
-    </div>
+    <ul>
+      {items.map((item, index) => (
+        <li key={index}>
+          {renderItem ? renderItem(item) : <div>{JSON.stringify(item)}</div>}
+        </li>
+      ))}
+    </ul>
   );
-}
+};
 
-import React, { useState } from 'react';
-import './Counter.css'; // For styling
+export default ListComponent;
 
-const Counter = () => {
-  const [count, setCount] = useState(0);
-  const LIMIT = 10;
+import React, { useState, useEffect } from 'react';
+import ListComponent from './ListComponent';
 
-  const increase = () => {
-    if (count < LIMIT) {
-      setCount(prevCount => prevCount + 1);
-    }
-  };
+const App = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const decrease = () => {
-    if (count > 0) {
-      setCount(prevCount => prevCount - 1);
-    }
-  };
+  // Example: Fetching data from JSONPlaceholder API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const result = await response.json();
+        setData(result.slice(0, 10)); // Just the first 10 for brevity
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const getMessage = () => {
-    if (count === LIMIT) {
-      return "You've reached the limit!";
-    }
-    return '';
-  };
+    fetchData();
+  }, []);
 
   return (
-    <div className="counter-container">
-      <h1>Counter App</h1>
-      <div className="count-display">{count}</div>
-      <div className="button-group">
-        <button onClick={increase} className="btn increase">Increase</button>
-        <button onClick={decrease} className="btn decrease" disabled={count === 0}>Decrease</button>
-      </div>
-      <p className="message">{getMessage()}</p>
+    <div>
+      <h1>Post List</h1>
+
+      {loading && <div>Loading...</div>}
+      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+
+      {!loading && !error && (
+        <ListComponent
+          items={data}
+          renderItem={(item) => (
+            <div>
+              <strong>{item.title}</strong>
+              <p>{item.body}</p>
+            </div>
+          )}
+          emptyMessage="No posts available."
+        />
+      )}
     </div>
   );
 };
 
-.counter-container {
-  text-align: center;
-  margin-top: 50px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+export default App;
 
-.count-display {
-  font-size: 48px;
-  margin: 20px 0;
-  color: #333;
-}
 
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-.btn {
-  padding: 10px 20px;
-  font-size: 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.increase {
-  background-color: #28a745;
-  color: white;
-}
-
-.decrease {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.message {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #ff8800;
-}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
 
