@@ -1,128 +1,153 @@
-project/
-├── package.json
+├── db.js
 ├── server.js
+├── routes/
+│   └── users.js
+├── .env
+├── package.json
 └── README.md
 
-mkdir express-api-project
-cd express-api-project
-npm init -y
-npm install express
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE
+);
+
+Environment Variables (.env)
+
+Create a .env file in your root:
+
+PORT=3000
+DB_USER=your_pg_username
+DB_HOST=localhost
+DB_DATABASE=mydb
+DB_PASSWORD=your_pg_password
+DB_PORT=5432
+
+Database Connection (db.js)
+
+// db.js
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
+module.exports = pool;
 
 
+Users Routes (routes/users.js)
+
+// routes/users.js
+const express = require('express');
+const router = express.Router();
+const pool = require('../db');
+
+// GET all users
+router.get('/', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM users');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET a specific user
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// POST create a new user
+router.post('/', async (req, res) => {
+  const { name, email } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+      [name, email]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// PUT update a user
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
+      [name, email, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// DELETE a user
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+module.exports = router;
+
+
+Main Server File (server.js)
+
+// server.js
 const express = require('express');
 const app = express();
-const PORT = 3000;
+const usersRouter = require('./routes/users');
+require('dotenv').config();
 
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json());
+app.use('/users', usersRouter);
 
-// In-memory data store
-let items = [
-  { id: 1, name: "Item One", description: "This is the first item." },
-  { id: 2, name: "Item Two", description: "This is the second item." },
-];
-
-// Root route
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
-
-// GET /items - Retrieve all items
-app.get('/items', (req, res) => {
-  res.json(items);
-});
-
-// GET /items/:id - Retrieve item by ID
-app.get('/items/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const item = items.find(i => i.id === id);
-  if (!item) {
-    return res.status(404).json({ error: 'Item not found' });
-  }
-  res.json(item);
-});
-
-// POST /items - Create a new item
-app.post('/items', (req, res) => {
-  const { name, description } = req.body;
-  if (!name || !description) {
-    return res.status(400).json({ error: 'Name and description are required' });
-  }
-  const newItem = {
-    id: items.length + 1,
-    name,
-    description
-  };
-  items.push(newItem);
-  res.status(201).json(newItem);
-});
-
-// PUT /items/:id - Update an item by ID
-app.put('/items/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const item = items.find(i => i.id === id);
-  if (!item) {
-    return res.status(404).json({ error: 'Item not found' });
-  }
-
-  const { name, description } = req.body;
-  if (!name || !description) {
-    return res.status(400).json({ error: 'Name and description are required' });
-  }
-
-  item.name = name;
-  item.description = description;
-
-  res.json(item);
-});
-
-// DELETE /items/:id - Delete an item by ID
-app.delete('/items/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = items.findIndex(i => i.id === id);
-  if (index === -1) {
-    return res.status(404).json({ error: 'Item not found' });
-  }
-
-  items.splice(index, 1);
-  res.status(204).send();
-});
-
-// Error handling for invalid routes
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
-
-// Start the server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
 
-Example Testing (Postman or Curl)
+Testing
 
-GET All Items
+Use Postman or cURL to test endpoints:
 
-GET http://localhost:3000/items
+GET /users
 
-GET Item by ID
+GET /users/:id
 
-GET http://localhost:3000/items/1
+POST /users with body { "name": "Alice", "email": "alice@example.com" }
 
-POST New Item
+PUT /users/:id with updated body
 
-POST http://localhost:3000/items
-Content-Type: application/json
-Body:
-{
-  "name": "New Item",
-  "description": "A new item added."
-}
+DELETE /users/:id
 
-PUT Update Item
-
-PUT http://localhost:3000/items/1
-Content-Type: application/json
-Body:
-{
-  "name": "Updated Item",
-  "description": "This item was u
