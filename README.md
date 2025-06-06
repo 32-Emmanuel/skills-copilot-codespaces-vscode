@@ -1,87 +1,176 @@
-/src
-  ├── App.js
-  ├── ListComponent.js
-  └── index.js
+nodejs-chat-app/
+├── server.js
+├── public/
+│   └── index.html
+└── README.md
 
 
-import React from 'react';
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const { Server } = require('socket.io');
 
-const ListComponent = ({ items, renderItem, emptyMessage = "No items to display." }) => {
-  if (!items || items.length === 0) {
-    return <div>{emptyMessage}</div>;
-  }
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-  return (
-    <ul>
-      {items.map((item, index) => (
-        <li key={index}>
-          {renderItem ? renderItem(item) : <div>{JSON.stringify(item)}</div>}
-        </li>
-      ))}
-    </ul>
-  );
-};
+const server = http.createServer(app);
+const io = new Server(server, {
+cors: {
+origin: '*',
+}
+});
 
-export default ListComponent;
+// In-memory user store
+let users = [];
+let messages = [];
 
-import React, { useState, useEffect } from 'react';
-import ListComponent from './ListComponent';
+// Socket.IO events
+io.on('connection', (socket) => {
+console.log('A user connected:', socket.id);
 
-const App = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+socket.on('join', (username) => {
+users.push({ id: socket.id, username });
+io.emit('userList', users);
+});
 
-  // Example: Fetching data from JSONPlaceholder API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const result = await response.json();
-        setData(result.slice(0, 10)); // Just the first 10 for brevity
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+socket.on('chatMessage', (msg) => {
+const message = { id: socket.id, msg, time: new Date() };
+messages.push(message);
+io.emit('message', message);
+});
 
-    fetchData();
-  }, []);
+socket.on('disconnect', () => {
+users = users.filter(user => user.id !== socket.id);
+io.emit('userList', users);
+console.log('User disconnected:', socket.id);
+});
+});
 
-  return (
-    <div>
-      <h1>Post List</h1>
+// REST API endpoints
+app.get('/api/users', (req, res) => {
+res.json(users);
+});
 
-      {loading && <div>Loading...</div>}
-      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+app.get('/api/messages', (req, res) => {
+res.json(messages.slice(-50)); // Last 50 messages
+});
 
-      {!loading && !error && (
-        <ListComponent
-          items={data}
-          renderItem={(item) => (
-            <div>
-              <strong>{item.title}</strong>
-              <p>{item.body}</p>
-            </div>
-          )}
-          emptyMessage="No posts available."
-        />
-      )}
-    </div>
-  );
-};
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+console.log(`Server running on port ${PORT}`);
+});
 
-export default App;
+<!DOCTYPE html>
+<html>
+<head>
+<title>Node.js Chat</title>
+</head>
+<body>
+<h2>Real-time Chat</h2>
+<input id="username" placeholder="Enter username" />
+<button onclick="joinChat()">Join</button>
+<div id="chat" style="display:none">
+<div id="messages"></div>
+<input id="msg" placeholder="Type message..." />
+<button onclick="sendMessage()">Send</button>
+</div>
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+const socket = io("http://localhost:3000");
+let username = "";
+
+function joinChat() {
+username = document.getElementById("username").value;
+socket.emit("join", username);
+document.getElementById("chat").style.display = "block";
+}
+
+function sendMessage() {
+const msg = document.getElementById("msg").value;
+socket.emit("chatMessage", msg);
+document.getElementById("msg").value = "";
+}
+
+socket.on("message", (data) => {
+const msgDiv = document.getElementById("messages");
+const newMsg = document.createElement("p");
+newMsg.textContent = `${data.msg}`;
+msgDiv.appendChild(newMsg);
+});
+
+socket.on("userList", (users) => {
+console.log("Active users:", users);
+});
+</script>
+</body>
+</html>
 
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+Node.js Scalable Real-Time Chat Application
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+Overview
+
+This project demonstrates the power of **Node.js** for scalable, real-time applications. It includes:
+
+- A real-time WebSocket-based chat (via Socket.IO)
+- A REST API for fetching active users and messages
+- Support for many concurrent connections
+
+How to Run
+
+```bash
+npm install
+node server.js
+
+Open multiple browser windows at http://localhost:3000 with public/index.html.
+
+Features
+
+Real-time bidirectional communication using Socket.IO
+
+Express.js-based REST API
+
+In-memory storage of users and messages
+
+Concurrent connection support
+
+
+API Endpoints
+
+GET /api/users – Returns active users
+
+GET /api/messages – Returns last 50 messages
+
+
+Node.js Scalability Explained
+
+Node.js excels at I/O-bound, concurrent operations. This app showcases:
+
+1. Event-Driven Non-blocking I/O:
+
+Socket.IO and Express run on a single-threaded event loop.
+
+Thousands of WebSocket clients can be handled with minimal CPU usage.
+
+
+Concurrent Connections:
+
+Node.js doesn't spawn new threads per request; it handles concurrent users efficiently.
+
+Socket.IO queues events in the loop without blocking the server.
+
+
+Horizontal Scalability (optional):
+
+Easily deployable using multiple instances behind a load balancer.
+
+Socket.IO supports clustering with Redis pub/sub if needed.
+
+
+Resource Efficiency:
+
+Ideal for lightweight microservices, chat servers, and real-time dashboards.
+
+
 
