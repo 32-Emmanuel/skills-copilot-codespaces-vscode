@@ -18,6 +18,30 @@ npm is the default package manager for Node.js, providing a vast ecosystem of re
 
 B. Comparison: Node.js vs. Traditional Server-Side Technologies
 
+Feature
+
+- Concurrency model
+- Thread usage
+- Scalability
+- Request handling
+- Package management
+
+Node.js
+
+- Event-driven, non-blocking I/O
+- Single-threaded with event-loop
+- HIgh (efficient for many users)
+- Asynchronou callback-based
+- Package management
+npm-modern, vast ecosystem
+
+Traditional servers
+
+- Thread-based, blocking I/O
+- One thread per request (or thread pool)
+- Moderate to high (requires more resources)
+- Synchronous or threaded
+- Varies (e.g, maven for java, composer for PHP)
 
 C. Pros and Cons of Node.js
 
